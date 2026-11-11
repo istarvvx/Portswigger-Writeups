@@ -1,0 +1,65 @@
+SQL injection (SQLi) is a web security vulnerability that allows an attacker to interfere with the queries that an application makes to its database. This can allow an attacker to view data that they are not normally able to retrieve
+
+A successful SQL injection attack can result in unauthorized access to sensitive data, such as:
+Passwords.
+Credit card details.
+Personal user information.
+
+Most SQL injection vulnerabilities occur within the WHERE clause of a SELECT query. Most experienced testers are familiar with this type of SQL injection.
+
+----------------------------------------------SQL injection examples--------------------------------------------------
+
+1. Retrieving hidden data
+https://insecure-website.com/products?category=Gifts'+OR+1=1--
+This results in the SQL query:
+SELECT * FROM products WHERE category = 'Gifts' OR 1=1--' AND released = 1
+
+2. Subverting application logic
+For example, submitting the username administrator'-- and a blank password 
+results in the following query:
+SELECT * FROM users WHERE username = 'administrator'--' AND password = ''
+
+3. Retrieving data from other database tables
+an attacker can use a SQL injection vulnerability to retrieve data from other tables within the database. You can use the UNION keyword to execute an additional SELECT query and append the results to the original query.
+
+For example, if an application executes the following query containing the user input Gifts:
+SELECT name, description FROM products WHERE category = 'Gifts'
+
+An attacker can submit the input:
+' UNION SELECT username, password FROM users--
+
+
+---------------------------------------------Examining the database---------------------------------------------
+
+After identifying a SQL injection vulnerability, it's often useful to obtain information about the database. This information can help exploit the vulnerability.
+
+The following are some queries to determine the database version for some popular database types:
+Database type		Query
+Microsoft, MySQL	SELECT @@version
+Oracle			SELECT * FROM v$version
+PostgreSQL		SELECT version()
+
+For example, you could use a UNION attack with the following input:
+' UNION SELECT @@version--
+
+
+On Oracle databases, every SELECT statement must specify a table to select FROM. If your UNION SELECT attack does not query from a table, you will still need to include the FROM keyword followed by a valid table name.
+
+There is a built-in table on Oracle called dual which you can use for this purpose. 
+For example: UNION SELECT 'abc' FROM dual
+
+On Oracle, you can find the same information as follows:
+
+You can list tables by querying all_tables:
+SELECT * FROM all_tables
+
+You can list columns by querying all_tab_columns:
+SELECT * FROM all_tab_columns WHERE table_name = 'USERS'
+
+
+
+Most database types (except Oracle) have a set of views called the information schema. This provides information about the database.
+
+For example, you can query information_schema.tables to list the tables in the database:
+
+SELECT * FROM information_schema.tables

